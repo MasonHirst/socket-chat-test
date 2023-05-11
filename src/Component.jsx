@@ -1,32 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
-const Component = ({ socket }) => {
+const Component = ({ message }) => {
   const [inputValue, setInputValue] = useState('')
-  const [message, setMessage] = useState('')
-
-  function handleSubmit() {
-    if (inputValue) {
-      // console.log({inputValue})
-      socket.send(inputValue)
-    } else alert('Message cannot be empty')
+  
+  function handleSubmit(e) {
+    e.preventDefault()
+    axios.post('api/message', { message: inputValue })
+    .then(({data}) => {
+      console.log(data)
+    })
   }
 
-  socket.addEventListener("message", ({data}) => {
-    setMessage(data)
-    console.log("Message from server: ", data);
-  });
-  
+  console.log('message: ', message)
+
   return (
-    <form onSubmit={handleSubmit} style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 15,
-    }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 15,
+      }}
+    >
       <input
         onChange={(e) => setInputValue(e.target.value)}
         placeholder="message"
       />
-      <button type='submit'>Send message</button>
+      <button type="submit">Send message</button>
       <h3>Latest message from the homies: {message}</h3>
     </form>
   )

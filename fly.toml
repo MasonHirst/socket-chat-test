@@ -1,0 +1,24 @@
+# fly.toml app configuration file generated for test-socket-app on 2023-05-11T12:03:34-06:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+
+app = "test-socket-app"
+primary_region = "den"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+[services.concurrency]
+  hard_limit = 25
+  soft_limit = 20
+
+[[services.ports]]
+  handlers = ["http"]
+  port = "80"
+
+[[services.ports]]
+  handlers = ["tls", "http"]
+  port = "443"
