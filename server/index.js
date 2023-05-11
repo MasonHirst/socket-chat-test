@@ -11,15 +11,8 @@ app.use(express.static(join))
 app.use(express.json())
 app.use(cors())
 
-
-
-
-
 //! Server listen
 const PORT = process.env.PORT || 8080
-
-
-const clients = {}
 
 const { WebSocketServer, WebSocket } = require('ws')
 const wss = new WebSocketServer({
@@ -27,39 +20,45 @@ const wss = new WebSocketServer({
     console.log(`SERVER LISTENING ON PORT ${PORT}`)
   }),
 })
-wss.on('listening', () => console.log('SOCKET LISTENING ON PORT: ' + wss.address().port))
+wss.on('listening', () =>
+  console.log('SOCKET LISTENING ON PORT: ' + wss.address().port)
+)
 
-wss.on('connection', function connection(ws) {
-  console.log('new client: ',)
+wss.on('connection', function connection(ws, req) {
+  // Extract token from query parameters
+  let token = null
+
+  // Check if the URL contains a query parameter named 'token'
+  if (req.url.includes('?')) {
+    const queryParameters = req.url.split('?')[1]
+    const urlParams = new URLSearchParams(queryParameters)
+    token = urlParams.get('token')
+  }
+  // console.log('token: ', token)
+  // Attach the token to the WebSocket object
+  ws.token = token
+
+  console.log('new client: ')
   ws.on('error', console.error)
-  
-  ws.on('message', function message(data, isBinary) {
-    console.log(wss.clients.size)
-    const newData = JSON.parse(data)
-    
-    if (newData.event_type === 'auth') {
-      ws.token = newData.token
-      clients[newData.token] = ws
-    } 
-  })
-  
+
+  ws.on('message', function message(data, isBinary) {})
+
   ws.on('close', function close() {
     console.log('disconnected')
-    
   })
 })
-
 
 //! Endpoints
 app.post('/api/message', (req, res) => {
   const { message } = req.body
+  const token = req.headers.authorization
   try {
-    console.log('sending message: ', message)
-    console.log('clients object length: ', Object.values(clients).length)
-    Object.values(clients).forEach(function each(client) {
-      console.log('client id: ', client.token)
+    // console.log('sending message: ', message)
+    wss.clients.forEach(function each(client) {
+      if (client.token === token) return console.log('not sending to self')
+
       if (client.readyState === WebSocket.OPEN) {
-        const body = JSON.stringify({message})
+        const body = JSON.stringify({ message })
         client.send(body)
       }
     })
@@ -68,7 +67,6 @@ app.post('/api/message', (req, res) => {
     res.status(500).send(err)
   }
 })
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
-  })
-  
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'))
+})

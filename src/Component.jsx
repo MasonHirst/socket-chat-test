@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const Component = ({ message }) => {
   const [inputValue, setInputValue] = useState('')
+  const testUserToken = localStorage.getItem('testUserToken')
   
   function handleSubmit(e) {
     e.preventDefault()
@@ -10,9 +11,8 @@ const Component = ({ message }) => {
     .then(({data}) => {
       console.log(data)
     })
+    .catch(console.error)
   }
-
-  console.log('message: ', message)
 
   return (
     <form

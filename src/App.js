@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Component from './Component'
-import { v4 } from 'uuid'
-
-if (!localStorage.getItem('testSocketToken')) {
-  localStorage.setItem('testSocketToken', v4())
-}
 
 function App() {
   const [message, setMessage] = useState('')
@@ -20,13 +15,10 @@ function App() {
     if (process.env.NODE_ENV === 'development') {
       serverUrl = 'ws://localhost:8080'
     }
-    const ws = new WebSocket(serverUrl)
+    const ws = new WebSocket(`${serverUrl}?token=${localStorage.getItem('testSocketToken')}`)
 
     ws.addEventListener('open', function (event) {
       console.log('connected to ws server ')
-      ws.send(
-        JSON.stringify({ event_type: 'auth', token: localStorage.getItem('testSocketToken') })
-      )
     })
 
     ws.addEventListener('message', function (event) {
