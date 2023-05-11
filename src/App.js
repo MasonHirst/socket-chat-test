@@ -5,29 +5,40 @@ function App() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    let serverUrl
-    let scheme = 'ws'
-    let location = document.location
-    if (location.protocol === 'https:') {
-      scheme += 's'
+    function connectClient() {
+      let serverUrl
+      let scheme = 'ws'
+      let location = document.location
+      if (location.protocol === 'https:') {
+        scheme += 's'
+      }
+      serverUrl = `${scheme}://${location.hostname}:${location.port}`
+      if (process.env.NODE_ENV === 'development') {
+        serverUrl = 'ws://localhost:8080'
+      }
+      const ws = new WebSocket(
+        `${serverUrl}?token=${localStorage.getItem('testSocketToken')}`
+      )
+  
+      ws.addEventListener('open', function (event) {
+        console.log('connected to ws server ')
+      })
+  
+      ws.addEventListener('message', function (event) {
+        const body = JSON.parse(event.data)
+        console.log('Message from server ', body.message)
+        setMessage(body.message)
+      })
+  
+      ws.addEventListener('close', function (event) {
+        console.log('disconnected from ws server ')
+        setTimeout(() => {
+          console.log('Reconnecting...')
+          connectClient() // try to reconnect after a delay
+        }, 1000)
+      })  
     }
-    serverUrl = `${scheme}://${location.hostname}:${location.port}`
-    if (process.env.NODE_ENV === 'development') {
-      serverUrl = 'ws://localhost:8080'
-    }
-    const ws = new WebSocket(
-      `${serverUrl}?token=${localStorage.getItem('testSocketToken')}`
-    )
-
-    ws.addEventListener('open', function (event) {
-      console.log('connected to ws server ')
-    })
-
-    ws.addEventListener('message', function (event) {
-      const body = JSON.parse(event.data)
-      console.log('Message from server ', body.message)
-      setMessage(body.message)
-    })
+    connectClient()
   }, [])
 
   return (

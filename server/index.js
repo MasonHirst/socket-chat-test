@@ -43,7 +43,7 @@ wss.on('connection', function connection(ws, req) {
 
   ws.on('message', function message(data, isBinary) {})
   ws.on('pong', () => {
-    console.log('pong')
+    // console.log('pong')
   })
 
   ws.on('close', function close() {
@@ -61,6 +61,7 @@ wss.on('connection', function connection(ws, req) {
 
 //! Endpoints
 app.post('/api/message', (req, res) => {
+  console.log('send message endpoint called')
   const { message } = req.body
   const token = req.headers.authorization
   try {
