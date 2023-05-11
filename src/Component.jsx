@@ -3,7 +3,6 @@ import axios from 'axios'
 
 const Component = ({ message }) => {
   const [inputValue, setInputValue] = useState('')
-  const testUserToken = localStorage.getItem('testUserToken')
   
   function handleSubmit(e) {
     e.preventDefault()

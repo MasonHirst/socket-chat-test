@@ -15,7 +15,9 @@ function App() {
     if (process.env.NODE_ENV === 'development') {
       serverUrl = 'ws://localhost:8080'
     }
-    const ws = new WebSocket(`${serverUrl}?token=${localStorage.getItem('testSocketToken')}`)
+    const ws = new WebSocket(
+      `${serverUrl}?token=${localStorage.getItem('testSocketToken')}`
+    )
 
     ws.addEventListener('open', function (event) {
       console.log('connected to ws server ')

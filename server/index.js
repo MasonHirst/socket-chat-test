@@ -42,10 +42,21 @@ wss.on('connection', function connection(ws, req) {
   ws.on('error', console.error)
 
   ws.on('message', function message(data, isBinary) {})
+  ws.on('pong', () => {
+    console.log('pong')
+  })
 
   ws.on('close', function close() {
     console.log('disconnected')
   })
+
+  setInterval(() => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.ping()
+      }
+    })
+  }, 3000)
 })
 
 //! Endpoints
