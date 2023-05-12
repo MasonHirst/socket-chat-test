@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Component = ({ message }) => {
+const Component = ({ message, sendMessage }) => {
   const [inputValue, setInputValue] = useState('')
   
   function handleSubmit(e) {
     e.preventDefault()
-    axios.post('api/message', { message: inputValue })
-    .then(({data}) => {
-      console.log(data)
-    })
-    .catch(console.error)
+    // axios.post('api/message', { message: inputValue })
+    // .then(({data}) => {
+    //   console.log(data)
+    // })
+    // .catch(console.error)
+
+    sendMessage(inputValue)
   }
 
   return (

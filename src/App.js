@@ -3,6 +3,11 @@ import Component from './Component'
 
 function App() {
   const [message, setMessage] = useState('')
+  const [socket, setSocket] = useState(null)
+
+  function sendMessage(message) {
+    socket.send(JSON.stringify({ message }))
+  }
 
   useEffect(() => {
     function connectClient() {
@@ -22,6 +27,7 @@ function App() {
   
       ws.addEventListener('open', function (event) {
         console.log('connected to ws server ')
+        setSocket(ws)
       })
   
       ws.addEventListener('message', function (event) {
@@ -57,7 +63,7 @@ function App() {
       }}
     >
       <h1>Test socket</h1>
-      <Component message={message} />
+      <Component message={message} sendMessage={sendMessage} />
     </div>
   )
 }

@@ -41,7 +41,15 @@ wss.on('connection', function connection(ws, req) {
   console.log('new client: ')
   ws.on('error', console.error)
 
-  ws.on('message', function message(data, isBinary) {})
+  ws.on('message', function message(data, isBinary) {
+    const message = JSON.parse(data).message
+    console.log('received: %s', message)
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ message }))
+      }
+    })
+  })
   ws.on('pong', () => {
     // console.log('pong')
   })
@@ -62,6 +70,7 @@ wss.on('connection', function connection(ws, req) {
 //! Endpoints
 app.post('/api/message', (req, res) => {
   console.log('send message endpoint called')
+  console.log('clients size: ', wss.clients.size)
   const { message } = req.body
   const token = req.headers.authorization
   try {
