@@ -13,6 +13,7 @@ app.use(cors())
 
 //! Server listen
 const PORT = process.env.PORT || 8080
+const clientsList = {}
 
 const { WebSocketServer, WebSocket } = require('ws')
 const wss = new WebSocketServer({
@@ -37,6 +38,7 @@ wss.on('connection', function connection(ws, req) {
   // console.log('token: ', token)
   // Attach the token to the WebSocket object
   ws.token = token
+  clientsList[token] = ws
 
   console.log('new client: ')
   ws.on('error', console.error)
@@ -45,7 +47,7 @@ wss.on('connection', function connection(ws, req) {
     const message = JSON.parse(data).message
     console.log('received: %s', message)
     console.log('clients size in onMessage: ', wss.clients.size)
-    wss.clients.forEach((client) => {
+    Object.values(clientsList).forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify({ message }))
       }
